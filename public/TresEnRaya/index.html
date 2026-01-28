@@ -1,0 +1,940 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tres En Raya Everth Rivera</title>
+    <link rel="stylesheet" href="estilo.css">
+</head>
+
+<body>
+    <h1>Tres en Raya</h1>
+    <div class="menu-botones">
+        <button id="boton6" onclick="modoJuegoFichas(6)">6 fichas</button>
+        <button id="boton9" onclick="modoJuegoFichas(9)">9 fichas</button>
+        <button id="botonIa" onclick="activarIa()">IA</button> 
+        <button id="boton2J" onclick="modo2Jugadores()">2 Jugadores</button>
+    </div>
+
+    <div class="img-container">
+        <div class="img" onclick="asignacionFichas('X')">
+            <img src="img/x.png" alt="x" width="50" height="50">
+        </div>
+        <div class="img" onclick="asignacionFichas('O')">
+            <img src="img/o.png" alt="o" width="50" height="50">
+        </div>
+    </div>
+
+    <div class="main-container">
+        
+        <table class="tablaXO">
+            <tr>
+                <td id="0" onclick="ponerFichaTablero(0)" oncontextmenu="levantarFichaJugador(0); return false"></td>
+                <td id="1" onclick="ponerFichaTablero(1)" oncontextmenu="levantarFichaJugador(1); return false"></td>
+                <td id="2" onclick="ponerFichaTablero(2)" oncontextmenu="levantarFichaJugador(2); return false"></td>
+            </tr>
+            <tr>
+                <td id="3" onclick="ponerFichaTablero(3)" oncontextmenu="levantarFichaJugador(3); return false"></td>
+                <td id="4" onclick="ponerFichaTablero(4)" oncontextmenu="levantarFichaJugador(4); return false"></td>
+                <td id="5" onclick="ponerFichaTablero(5)" oncontextmenu="levantarFichaJugador(5); return false"></td>
+            </tr>
+            <tr>
+                <td id="6" onclick="ponerFichaTablero(6)" oncontextmenu="levantarFichaJugador(6); return false"></td>
+                <td id="7" onclick="ponerFichaTablero(7)" oncontextmenu="levantarFichaJugador(7); return false"></td>
+                <td id="8" onclick="ponerFichaTablero(8)" oncontextmenu="levantarFichaJugador(8); return false"></td>
+            </tr>
+        </table>
+
+        <div class="panel-lateral">
+            <div id="turno" class="card-info">Turno</div>
+            <div id="temporizador" class="card-info">30s</div>
+            <div id="tiempoJugado" class="card-info">Total: 0s</div>
+            <button class="btn-reiniciar" onclick="reiniciarPartida()">REINICIAR PARTIDA</button>
+        </div>
+
+    </div>
+
+    <div id="estadisticas">
+        <table id="tablaEstadisticas" style="display: none;">
+            <thead>
+                <tr>
+                    <th>Estadísticas</th>
+                    <th>Jugador 1</th>
+                    <th id="rival">Rival</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>Ganadas</td>
+                    <td id="jugador1Ganadas">0</td>
+                    <td id="jugador2Ganadas">0</td>
+                </tr>
+                <tr>
+                    <td>Perdidas</td>
+                    <td id="jugador1Perdidas">0</td>
+                    <td id="jugador2Perdidas">0</td>
+                </tr>
+                <tr>
+                    <td>Empatadas</td>
+                    <td id="jugador1Empatadas">0</td>
+                    <td id="jugador2Empatadas">0</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+    <script type="module">
+        //variables globales
+        let opcJugador = "";
+        let opcMaquina = "";
+        let fichasColocadasJugador = 0;
+        let fichasColocadasMaquina = 0;
+        let fichasColocadasJugador2 = 0;
+        let totalHuecos = 9;
+        let ganador = false;
+        let empate = false;
+        let activacionIa = false;
+        let ganaIa = false;
+        let ganaJugador = false;
+        let tablero = [
+            ["","",""],
+            ["","",""],
+            ["","",""]
+        ];
+        let turnoActual = 0;
+        let jugadorFicha1 = "";
+        let jugadorFicha2 = "";
+        let modo_2Jugadores = false;
+        let tiempoTotal = 0;
+        let tiempoRestante = 30;
+        let contadorTiempo;
+        let datosJugador1 = {
+            partidasGanadasAleatorio: 0,
+            partidasPerdidasAleatorio: 0,
+            partidasEmpatadasAleatorio: 0,
+            partidasGanadasJugador: 0,
+            partidasPerdidasJugador: 0,
+            partidasEmpatadasJugador: 0,
+            partidasGanadasIa: 0,
+            partidasPerdidasIa: 0,
+            partidasEmpatadasIa: 0
+        };
+        let datosJugador2 = {
+            partidasGanadas: 0,
+            partidasPerdidas: 0,
+            partidasEmpatadas: 0
+        };
+        let datosMaquinaAleatorio = {
+            partidasGanadas: 0,
+            partidasPerdidas: 0,
+            partidasEmpatadas: 0
+        };
+        let datosMaquinaIa = {
+            partidasGanadas: 0,
+            partidasPerdidas: 0,
+            partidasEmpatadas: 0
+        };
+        let maximoFichas = 9;
+        //activar el modo Ia.
+        function activarIa(){
+            activacionIa  = !activacionIa;
+            const btn = event.target;
+            if(activacionIa){
+                activacionIa = true;
+                alert("La maquina esta en modo ia.");
+                btn.classList.add("activo");
+                console.log("Modo ia activado.");
+            }
+            else{
+                activacionIa = false;
+                alert("Se desactivo el modo ia.");
+                btn.classList.remove("activo");
+                console.log("Modo ia desactivado.");
+            }
+
+        }
+        //funcion para que activa y desactiva el boton de 6 fichas o 9 fichas
+        function modoJuegoFichas(modo){
+            //Si s elegio el modo de fichas, no se puede cambiar en mitad de la partida
+            if(totalHuecos < 9 ){
+                alert("No se puede cambiar el modo de fichas en mitad de la partida.");
+                console.log("No se puede cambiar el modo de fichas en mitad de la partida.");
+                return;
+            }
+            //quitamos la clase activo de ambos botones
+            document.getElementById("boton6").classList.remove("activo");
+            document.getElementById("boton9").classList.remove("activo");
+            //Asignamos el maximo de fichas segun el modo elegido
+            if(modo === 6){
+                maximoFichas = 6;
+                document.getElementById("boton6").classList.add("activo");
+                alert("Modo de 6 fichas activado.");
+                console.log("Modo de 6 fichas activado.");
+            }
+            else{
+                maximoFichas = 9;
+                document.getElementById("boton9").classList.add("activo");
+                alert("Modo de 9 fichas activado.");
+                console.log("Modo de 9 fichas activado.");
+            }
+        }
+        //comprobar ganador
+        function comprobarGanador() {
+            let lineas = [
+                [[0,0],[0,1],[0,2]],//fila 0
+                [[1,0],[1,1],[1,2]],//fila 1
+                [[2,0],[2,1],[2,2]],//fila 2
+                [[0,0],[1,0],[2,0]],//columa 0
+                [[0,1],[1,1],[2,1]],//columa 1
+                [[0,2],[1,2],[2,2]],//columna 2
+                [[0,0],[1,1],[2,2]],//diagonal \
+                [[0,2],[1,1],[2,0]]//diagonal /
+            ];
+            for (const linea of lineas) {
+                let [a,b,c] = linea;
+                if(tablero[a[0]][a[1]] && tablero[a[0]][a[1]] === tablero[b[0]][b[1]] && tablero[a[0]][a[1]] === tablero[c[0]][c[1]]){
+                    ganador = true;
+                    //comprobacion del modo 2 jugadores para un mensaje correcto
+                    if(modo_2Jugadores){
+                        //Actualizamos las estadisticas de los jugadores
+                        if(tablero[a[0]][a[1]] === jugadorFicha1){
+                            datosJugador1.partidasGanadasJugador++;
+                            datosJugador2.partidasPerdidas++;
+                            console.log("Jugador 1 Gana");
+                        }
+                        else{
+                            datosJugador2.partidasGanadas++;
+                            datosJugador1.partidasPerdidasJugador++;
+                            console.log("Jugador 2 Gana");
+
+                        }
+                        alert(tablero[a[0]][a[1]] === jugadorFicha1 ? "Ha Ganado El Jugador 1" : "Ha Ganado El Jugador 2");
+                        actualizarEstadisticas();
+                    }
+                    else{
+                        //Actualizamos las estadisticas del jugador y la maquina
+                        if(activacionIa){
+                            if(tablero[a[0]][a[1]] === opcJugador){
+                                datosJugador1.partidasGanadasIa++;
+                                datosMaquinaIa.partidasPerdidas++;
+                                console.log("Gana El Jugador");
+
+                            }
+                            else{
+                                datosMaquinaIa.partidasGanadas++;
+                                datosJugador1.partidasPerdidasIa++;
+                                console.log("Gana La Maquina (IA)");
+                            }
+                            alert(tablero[a[0]][a[1]] === opcJugador ? "Has Ganado" : "Ha Ganado La Maquina (IA)");
+                            actualizarEstadisticas();
+                            return;
+
+                        }
+                        else{
+                            if(tablero[a[0]][a[1]] === opcJugador){
+                                datosJugador1.partidasGanadasAleatorio++;
+                                datosMaquinaAleatorio.partidasPerdidas++;
+                                console.log("Gana El Jugador");
+                            }
+                            else{
+                                datosMaquinaAleatorio.partidasGanadas++;
+                                datosJugador1.partidasPerdidasAleatorio++;
+                                console.log("Gana La Maquina (Aleatorio)");
+                            }
+                        }
+                        alert(tablero[a[0]][a[1]] === opcJugador ? "Has Ganado" : "Ha Ganado La Maquina (Aleatorio)");
+                        actualizarEstadisticas();
+                    }
+                    return;
+                }
+            }
+            if(totalHuecos == 0){
+                //Actualizamos las estadisticas de los jugadores en caso de empate
+                if(modo_2Jugadores){
+                    datosJugador1.partidasEmpatadasJugador++;
+                    datosJugador2.partidasEmpatadas++;
+                }
+                // Si no es modo 2 jugadores, actualizamos las estadisticas del jugador y la maquina
+                else if(activacionIa){
+                    datosJugador1.partidasEmpatadasIa++;
+                    datosMaquinaIa.partidasEmpatadas++;
+                }
+                // Si no es modo 2 jugadores ni IA, actualizamos las estadisticas del jugador y la maquina aleatoria
+                else{
+                    datosJugador1.partidasEmpatadasAleatorio++;
+                    datosMaquinaAleatorio.partidasEmpatadas++;
+                }
+                console.log("Empate");
+                empate = true;
+                alert("Empate");
+                actualizarEstadisticas();
+            }
+        }
+        
+        //Funcion para asignar la ficha del jugador - Maquina / Jugador1-Jugador2.
+        function asignacionFichas(ficha) {
+            //Limpiamos cualquier temporizador anterior
+            clearInterval(contadorTiempo);
+            if (ficha == 'X') {
+                alert("Has seleccionado X");
+                //si el modo 2 jugadores esta activado le asignamos "X" al J1 y "O" al J2.
+                if(modo_2Jugadores){
+                    jugadorFicha1 = "X";
+                    jugadorFicha2 = "O"
+                    turnoActual = 1;
+                    //Indicamos el turno.
+                    mostrarTurno();
+                    console.log("Ficha Jugador 1: " + jugadorFicha1 + " Ficha Jugador 2: " + jugadorFicha2);
+                }
+                //si no, le asignamos "X" al jugador y "O" a la maquina.
+                else{
+                    opcJugador = 'X';
+                    opcMaquina = 'O';
+                    turnoActual = 1;
+                    console.log("Ficha Jugador: " + opcJugador + " Ficha Maquina: " + opcMaquina);
+                }
+                //si el jugador elige "X", empieza el jugador.
+            } else if (ficha === 'O') {
+                alert("Has seleccionado O");
+                //si el modo 2 jugadores esta activado le asignamos "O" al J1 y "X" al J2.
+                if(modo_2Jugadores){
+                    jugadorFicha1 = 'O';
+                    jugadorFicha2 = "X"
+                    turnoActual = 1;
+                    //Indicamos el turno.
+                    mostrarTurno();
+                    console.log("Ficha Jugador: " + opcJugador + " Ficha Maquina: " + opcMaquina);
+                }
+                //si no, le asignamos "O" al jugador y "X" a la maquina.
+                else{
+                    opcJugador = 'O';
+                    opcMaquina = 'X';
+                    turnoActual = 1;
+                    console.log("Ficha Jugador: " + opcJugador + " Ficha Maquina: " + opcMaquina);
+                }
+            }
+            //Iniciamos el temporizador
+            contadorTiempo = setInterval(temporizador,1000);
+        }
+        //funcion para poner ficha en el tablero
+        function ponerFichaTablero(celda) {
+            //si ya hay un ganador o empate no se puede poner ficha
+            if (ganador || empate) {
+                console.log("El juego ya terminó.");
+                return;
+            }
+            let fila = Math.floor(celda / 3);
+            let columna = celda % 3;
+            //si la celda ya esta ocupada no pone ficha
+            if (tablero[fila][columna] !== "") {
+                console.log("Celda ocupada");
+                return;
+            }
+
+            //verificamos el límite de 3 fichas por jugador
+            let fichasTurnoActual = (modo_2Jugadores && turnoActual === 2) ? fichasColocadasJugador2 : fichasColocadasJugador;
+            if (maximoFichas === 6 && fichasTurnoActual >= 3) {
+                alert("Ya has puesto 3 fichas. Haz click derecho para mover una.");
+                return;
+            }
+            //Obtenemos el elemento de la celda
+            let elementoCelda = document.getElementById(celda);
+            //MODO DOS JUGADORES
+            if (modo_2Jugadores) {
+                //Verificamos que las fichas esten asignadas
+                if (jugadorFicha1 == "" || jugadorFicha2 == "") {
+                    alert("Selecciona ficha primero");
+                    return;
+                }
+                //Verificamos que sea el turno del jugador correspondiente
+                if (turnoActual == 1) {
+                    tablero[fila][columna] = jugadorFicha1;
+                    elementoCelda.innerHTML = jugadorFicha1;
+                    elementoCelda.classList.remove('ficha-x', 'ficha-o');
+                    elementoCelda.classList.add(jugadorFicha1 === 'X' ? 'ficha-x' : 'ficha-o');
+                    fichasColocadasJugador++;
+                }
+                //Turno del jugador 2
+                 else {
+                    tablero[fila][columna] = jugadorFicha2;
+                    elementoCelda.innerHTML = jugadorFicha2;
+                    elementoCelda.classList.remove('ficha-x', 'ficha-o');
+                    elementoCelda.classList.add(jugadorFicha2 === 'X' ? 'ficha-x' : 'ficha-o');
+                    fichasColocadasJugador2++;
+                }
+
+                totalHuecos--;
+                comprobarGanador();
+                tiempoRestante = 30;
+                //Cambiamos el turno
+                if (!ganador && !empate) {
+                    turnoActual = (turnoActual === 1) ? 2 : 1;
+                    mostrarTurno();
+                }
+            } else {
+                // MODO CONTRA LA MÁQUINA
+                if (opcJugador == "") {
+                    alert("Selecciona una ficha primero");
+                    return;
+                }
+                tablero[fila][columna] = opcJugador;
+                elementoCelda.innerHTML = opcJugador;
+                elementoCelda.classList.remove('ficha-x', 'ficha-o');
+                elementoCelda.classList.add(opcJugador === 'X' ? 'ficha-x' : 'ficha-o');
+                fichasColocadasJugador++;
+                totalHuecos--;
+                comprobarGanador();
+                tiempoRestante = 30;
+
+                //Gestión del turno de la máquina
+                if (!ganador && !empate) {
+                    //Bloqueamos el turno del jugador mientras la máquina piensa
+                    turnoActual = 0; 
+                    document.getElementById("turno").innerText = "Turno: Máquina";
+                    
+                    //Ejecución de la IA o máquina aleatoria
+                    if (activacionIa) {
+                        setTimeout(ponerFichaMaquinConIa, 600);
+                    } else {
+                        setTimeout(ponerFichaMaquina, 600);
+                    }
+                }
+            }
+        }
+
+        //funcion para poner ficha de la maquina
+        function ponerFichaMaquina() {
+            //si esta el moodo 6 fichas y la maquina ya puso sus 3 fichas, puede levantar una ficha
+            if(maximoFichas === 6 && fichasColocadasMaquina === 3){
+                levantarFichaMaquina();
+                return;
+            }
+            let [fila,columna] = huecoAleatorio();
+            ejecutaMovimientoMaquina(fila,columna);
+        }
+
+        //si el modo ia esta activado, la maquina jugara con esta funcion.
+        function ponerFichaMaquinConIa(){
+            //si la maquina ha puesto sus 3 fichas y el modo 6 fichas esta activado, puede levantar una ficha pasandole una celda donde tenga una ficha
+            if(maximoFichas === 6 && fichasColocadasMaquina === 3){
+                levantarFichaMaquinaIa();
+                return;
+            }
+            let fila,columna;
+            //primer movimiento de la maquina pone una ficha aleatoria
+            if(fichasColocadasMaquina === 0){
+                [fila,columna] = huecoAleatorio();
+            }
+            else{
+                //Primero busca si puede ganar
+                [fila,columna] = buscarBloque(opcMaquina);
+
+                //si no puede ganar, se busca puede bloquear al jugador
+                if(fila === undefined){
+                    [fila,columna] = buscarBloque(opcJugador);
+                }
+                //si no puede bloquear, pone en un hueco aleatorio
+                if(fila === undefined){
+                    [fila,columna] = huecoAleatorio();
+                }
+            }
+            ejecutaMovimientoMaquina(fila,columna);
+        }
+        //funcion que ejecuta el movivimietno de la maquina
+        function ejecutaMovimientoMaquina(fila,columna){
+            //si ya hay ganador no hace nada
+            if (ganador) {
+                console.log("Ya hay ganador");
+                return;
+            }
+            //si la celda esta ocupada no pone ficha
+            else if (tablero[fila][columna] !== "") {
+                console.log("Celda Ocupada");
+                return;
+            }
+            //pone la ficha en el tablero y en el html
+            tablero[fila][columna] = opcMaquina;
+            let celda = fila * 3 + columna;
+            let elementoCelda = document.getElementById(celda);
+            elementoCelda.innerHTML = opcMaquina;
+            elementoCelda.classList.add(opcMaquina === 'X' ? 'ficha-x' : 'ficha-o');
+            totalHuecos--;
+            fichasColocadasMaquina++;
+            comprobarGanador();  
+            //actualizamos el temporizador
+            tiempoRestante = 30;
+            //devolvemos el turno al jugador
+            if (!ganador && !empate) {
+                turnoActual = 1; 
+                // Actualiza el texto visual de "Turno: Jugador"
+                mostrarTurno(); 
+                console.log("Turno devuelto al jugador.");
+            }
+        }
+        //funcion para buscar bloque
+        function buscarBloque(ficha){
+            let lineas = [
+                [[0, 0], [0, 1], [0, 2]], // filas
+                [[1, 0], [1, 1], [1, 2]],
+                [[2, 0], [2, 1], [2, 2]],
+                [[0, 0], [1, 0], [2, 0]], // columnas
+                [[0, 1], [1, 1], [2, 1]],
+                [[0, 2], [1, 2], [2, 2]],
+                [[0, 0], [1, 1], [2, 2]], // diagonales
+                [[0, 2], [1, 1], [2, 0]]
+            ];
+            // Recorremos todas las líneas para buscar posibles bloques o victorias
+            for (let i = 0; i < lineas.length; i++) {
+                let linea = lineas[i];
+                let contador = 0;
+                let posVacia = null;
+                // Contamos cuántas fichas del jugador hay en la línea y buscamos una posición vacía
+                for (let j = 0; j < linea.length; j++) {
+                    let fila = linea[j][0];
+                    let col = linea[j][1];
+
+                    if (tablero[fila][col] === ficha) {
+                        contador++;
+                    } else if (tablero[fila][col] === "") {
+                        posVacia = [fila, col];
+                    }
+                }
+
+                // Si hay 2 fichas y un hueco, 
+                if (contador === 2 && posVacia !== null) {
+                    return posVacia;
+                }
+            }
+            
+            // Si recorre todo y no hay nada, devuelve array vacío
+            return [];
+        }
+        //funcion para obtener un hueco aleatorio
+        function huecoAleatorio(){
+            let fila = Math.floor(Math.random() * 3);
+            let columna = Math.floor(Math.random() * 3);
+            while(tablero[fila][columna] !== ""){
+                fila = Math.floor(Math.random() * 3);
+                columna = Math.floor(Math.random() * 3);
+            }
+            return [fila,columna];
+        }
+        //funcion para activar/desactivar el modo 2 jugadores
+        function modo2Jugadores(){
+            //activar desactivar modo 2 jugadores
+            modo_2Jugadores = !modo_2Jugadores;
+            //capturamos el boton pulsado
+            const btn =document.getElementById("boton2J");
+            //Deshabilitamos los botones de modo de juego para evitar conflictos
+            const divTurno = document.getElementById("turno");
+            if(modo_2Jugadores){
+                alert("Modo 2 Jugadores Activado. Seleccione Ficha Para El Jugador 1.");
+                divTurno.style.display = "block";
+                btn.classList.add("activo");
+                console.log("Modo 2 Jugadores Activado.");
+            }
+            else{
+                alert("Modo 2 Jugadores Desactivado.");
+                divTurno.style.display = "none";
+                btn.classList.remove("activo");
+                console.log("Modo 2 Jugadores Desactivado.");
+            }
+            
+        }
+        //funcion para mostrar el turno si se juega en modo dos jugadores.
+        function mostrarTurno(){
+            if(!ganador){
+                document.getElementById("turno").innerHTML = "Turno: " + (turnoActual === 1 ? " Jugador 1" : " Jugador 2");
+            }
+            else{
+                document.getElementById("turno").innerHTML = "";
+            }
+        }
+        //queda mostrar el tiempo jugado al finalizar la partida.
+        //funcion para el temporizador
+        function temporizador(){
+            tiempoRestante--;
+            tiempoTotal++;
+            let minutos = Math.floor(tiempoTotal / 60);
+            let segundos = tiempoTotal % 60;
+            document.getElementById("temporizador").innerText = "Tiempo restante: " + tiempoRestante + "s";
+            //Si hay ganador detenemos el temporizador y mostramos el tiempo jugado
+            if(ganador){
+                clearInterval(contadorTiempo);
+                if(minutos <= 0){ 
+                    document.getElementById("tiempoJugado").innerHTML = "Tiempo de la partida: " + segundos + "s";
+                }
+                else{
+                    document.getElementById("tiempoJugado").innerHTML = "Tiempo de la partida: " + minutos + "m " + segundos + "s";
+                }
+                mostrarTiempoJugado(minutos,segundos);
+                return;
+            }
+            if(empate){
+                clearInterval(contadorTiempo);
+                alert("El juego termino en empate.");
+                mostrarTiempoJugado(minutos,segundos);
+                return;
+            }
+            //Si se acaba el tiempo comprobamos el ganador por tiempo y mostramos el tiempo jugado
+            if(tiempoRestante <= 0 ){
+                clearInterval(contadorTiempo);
+                alert("Se acabo el tiempo. Fin de la partida.");
+                if(minutos <= 0){ 
+                    document.getElementById("tiempoJugado").innerHTML = "Tiempo de la partida: " + segundos + "s";
+                }
+                else{
+                    document.getElementById("tiempoJugado").innerHTML = "Tiempo de la partida: " + minutos + "m " + segundos + "s";
+                }
+                mostrarTiempoJugado(minutos,segundos);
+
+                tiempoRestante = 30;
+                comprobarGanadorTiempo(turnoActual);
+                return;
+            }
+        }
+        //Funcion para comprobar ganador por fin de tiempo
+        function comprobarGanadorTiempo(turno){
+            //Indicamos que hay un ganador para que no se sigan poniendo fichas en el tablero
+            ganador = true;
+            //Si el modo 2 jugadores esta activado mostramos el mensaje correspondiente
+            if(modo_2Jugadores){
+                if(turno === 1){
+                    //si pierde el j1, gana el j2
+                    datosJugador2.partidasGanadas++;
+                    datosJugador1.partidasPerdidasJugador++;
+                    console.log("Jugador 2 Gana Por Tiempo");
+                }
+                else{
+                    //si pierde el j2, gana el j1
+                    datosJugador1.partidasGanadasJugador++;
+                    datosJugador2.partidasPerdidas++;
+                    console.log("Jugador 1 Gana Por Tiempo");   
+                }
+                alert(turno === 1 ? "Ha Ganado El Jugador 2 Por Tiempo" : "Ha Ganado El Jugador 1 Por Tiempo");
+                actualizarEstadisticas();
+            }
+            //Si no, mostramos el mensaje de jugador o maquina
+            else{
+                alert(turnoActual === 1 ? "Ha Ganado La Maquina Por Tiempo" : "Has Ganado Por Tiempo");
+                //si era el turno del jugador, gana la maquina y viceversa
+                if (turnoActual === 1) {
+                    //gana la maquina
+                    if (activacionIa) {
+                        datosMaquinaIa.partidasGanadas++;
+                        datosJugador1.partidasPerdidasIa++;
+                        console.log("Gana La Maquina (IA) Por Tiempo");
+                    } else {
+                        //gana la maquina aleatorio
+                        datosMaquinaAleatorio.partidasGanadas++;
+                        datosJugador1.partidasPerdidasAleatorio++;
+                        console.log("Gana La Maquina (Aleatorio) Por Tiempo");
+                    }
+                }else {
+                    //gana el jugador
+                    if (activacionIa) {
+                        datosJugador1.partidasGanadasIa++;
+                        datosMaquinaIa.partidasPerdidas++;
+                        console.log("Gana El Jugador Por Tiempo (IA)");
+                    //gana el jugador aleatorio
+                    } else {
+                        datosJugador1.partidasGanadasAleatorio++;
+                        datosMaquinaAleatorio.partidasPerdidas++;
+                        console.log("Gana El Jugador Por Tiempo (Aleatorio)");
+                    }
+                }
+            }   
+            actualizarEstadisticas();
+        }
+        //funcion para mostrar el tiempo jugado al finalizar la partida
+        function mostrarTiempoJugado(minutos,segundos){
+            if(minutos <= 0){ 
+                document.getElementById("tiempoJugado").innerHTML = "Tiempo de la partida: " + segundos + "s";
+            }
+            else{
+                document.getElementById("tiempoJugado").innerHTML = "Tiempo de la partida: " + minutos + "m " + segundos + "s";
+            }
+
+        }
+        //funcion para actualizar las estadisticas en el html
+        function actualizarEstadisticas(){
+            document.getElementById("tablaEstadisticas").style.display = "block";
+            //Mostramos la tabla de estadisticas en la cabecera el rival correspondiente
+            if(modo_2Jugadores){
+                document.getElementById("rival").innerText = "Jugador 2";
+            }
+            else if(activacionIa){
+                document.getElementById("rival").innerText = "Maquina (IA)";
+            }
+            else{
+                document.getElementById("rival").innerText = "Maquina (Aleatorio)";
+            }
+            //Mostramos las estadisticas correspondientes segun el modo de juego
+            if(modo_2Jugadores){
+                document.getElementById("jugador1Ganadas").innerText = datosJugador1.partidasGanadasJugador;
+                document.getElementById("jugador1Perdidas").innerText = datosJugador1.partidasPerdidasJugador;
+                document.getElementById("jugador1Empatadas").innerText = datosJugador1.partidasEmpatadasJugador;
+                document.getElementById("jugador2Ganadas").innerText = datosJugador2.partidasGanadas;
+                document.getElementById("jugador2Perdidas").innerText = datosJugador2.partidasPerdidas;
+                document.getElementById("jugador2Empatadas").innerText = datosJugador2.partidasEmpatadas;
+            }
+            else if(activacionIa){
+                document.getElementById("jugador1Ganadas").innerText = datosJugador1.partidasGanadasIa;
+                document.getElementById("jugador1Perdidas").innerText = datosJugador1.partidasPerdidasIa;
+                document.getElementById("jugador1Empatadas").innerText = datosJugador1.partidasEmpatadasIa;
+                document.getElementById("jugador2Ganadas").innerText = datosMaquinaIa.partidasGanadas;
+                document.getElementById("jugador2Perdidas").innerText = datosMaquinaIa.partidasPerdidas;
+                document.getElementById("jugador2Empatadas").innerText = datosMaquinaIa.partidasEmpatadas;
+            }
+            else{
+                document.getElementById("jugador1Ganadas").innerText = datosJugador1.partidasGanadasAleatorio;
+                document.getElementById("jugador1Perdidas").innerText = datosJugador1.partidasPerdidasAleatorio;
+                document.getElementById("jugador1Empatadas").innerText = datosJugador1.partidasEmpatadasAleatorio;
+                document.getElementById("jugador2Ganadas").innerText = datosMaquinaAleatorio.partidasGanadas;
+                document.getElementById("jugador2Perdidas").innerText = datosMaquinaAleatorio.partidasPerdidas;
+                document.getElementById("jugador2Empatadas").innerText = datosMaquinaAleatorio.partidasEmpatadas;
+            }
+
+        }
+        //funcion para reiniciar la partida
+        function reiniciarPartida(){
+            clearInterval(contadorTiempo);
+            //quitamos el color de las celdas para las fichas
+            for(let i = 0; i < 9; i++){
+                document.getElementById(i).classList.remove('ficha-x', 'ficha-o');
+            }
+            //habilitamos los botones de modo de juego
+            document.getElementById("boton6").disabled = false;
+            document.getElementById("boton9").disabled = false;
+            //Reiniciamos todas las variables globales
+            opcJugador = "";
+            opcMaquina = "";
+            fichasColocadasJugador = 0;
+            fichasColocadasMaquina = 0;
+            fichasColocadasJugador2 = 0;
+            totalHuecos = 9;
+            ganador = false;
+            empate = false;
+            turnoActual = 0;
+            jugadorFicha1 = "";
+            jugadorFicha2 = "";
+            tiempoTotal = 0;
+            tiempoRestante = 30;
+            //Reiniciamos el tablero
+            tablero = [
+                ["","",""],
+                ["","",""],
+                ["","",""]
+            ];
+            //Limpiamos el html
+            for(let i = 0; i < 9; i++){
+                document.getElementById(i).innerHTML = "";
+            }
+            document.getElementById("temporizador").innerText = "";
+            document.getElementById("tiempoJugado").innerText = "";
+            document.getElementById("turno").innerText = "";
+            alert("Partida Reiniciada. Seleccione Ficha.");
+        }
+        //funcion para levantar ficha los jugadores
+        function levantarFichaJugador(celda){
+            //si es el turno de la maquina no puede levantar ficha
+            if (turnoActual === 0) {
+                console.log("Espera a que la máquina termine su movimiento.");
+                return;
+            }
+            //solo levanta si el modo es de 6 fichas y tiene puestas sus 3 fichas
+            //ficha del turno actual
+            let fichaTurno = (modo_2Jugadores && turnoActual === 2) ? fichasColocadasJugador2 : fichasColocadasJugador;
+            if(maximoFichas !== 6 || fichaTurno < 3){
+                console.log("Solo se puede levantar ficha en el modo de 6 fichas.");
+                return;
+            }
+            //Si hay ganador no se puede levantar ficha
+            if(empate || ganador){
+                console.log("El juego ya termino y no se puede levantar ficha.");
+                return;
+            }
+            let fila = Math.floor(celda/3);
+            let columna = celda % 3;
+            //Si no hay ficha en la celda no hace nada
+            if(tablero[fila][columna] === ""){
+                console.log("No hay ficha en la celda");
+                return;
+            }
+            //Si el modo 2 jugadores esta activo...
+            if(modo_2Jugadores){
+                //Verificamos que no esten vacias las fichas de los jugadores
+                if(jugadorFicha1 == "" || jugadorFicha2 == ""){
+                    alert("Selecciones una ficha primero");
+                    return;
+                } 
+                //Validación de propiedad de la ficha (Jugador 1 o 2)
+                if ((turnoActual === 1 && tablero[fila][columna] === jugadorFicha1) || 
+                    (turnoActual === 2 && tablero[fila][columna] === jugadorFicha2)) {
+                    
+                    tablero[fila][columna] = "";
+                    document.getElementById(celda).innerHTML = "";
+                    document.getElementById(celda).classList.remove('ficha-x', 'ficha-o');
+                    //Decrementamos las fichas colocadas del jugador correspondiente
+                    if (turnoActual === 1) fichasColocadasJugador--;
+                    else fichasColocadasJugador2--;
+                    
+                    totalHuecos++;
+                    tiempoRestante = 30;
+                    console.log("Ficha levantada.");
+                } else {
+                    alert("No puedes levantar la ficha del otro jugador.");
+                }
+            } else {
+                // Modo contra la máquina
+                //Aseguramos que solo levante su ficha si es el turno 1
+                if (turnoActual === 1 && tablero[fila][columna] === opcJugador) {
+                    tablero[fila][columna] = "";
+                    document.getElementById(celda).innerHTML = "";
+                    fichasColocadasJugador--;
+                    totalHuecos++;
+                    tiempoRestante = 30;
+                    console.log("Ficha levantada.");
+                } else {
+                    alert("No es tu turno o no es tu ficha.");
+                }
+            }
+        }
+        //funcion para levantar ficha de la maquina y poner otra en otra posicion donde haya huecod de manera aleatoria
+        function levantarFichaMaquina(){
+            //solo levanta si el modo 6 fichas esta activado y la maquina ya tiene 3 fichas puestas
+            if (maximoFichas !== 6 || fichasColocadasMaquina < 3){
+                console.log("Solo se puede levantar ficha en el modo de 6 fichas cuando la maquina ya tiene 3 fichas puestas.");
+                return;
+            }
+            //si hay ganador y empate no se puede levantar ficha
+            if (ganador || empate){
+                console.log("El juego ya termino y no se puede levantar ficha.");
+                return;
+            }
+            //Si se levanto una ficha correctamente, pone otra en un hueco aleatorio
+            if (levantarFichaMaquinaProceso()) {
+                setTimeout(() => {
+                    let [nuevaFila, nuevaColumna] = huecoAleatorio();
+                    ejecutaMovimientoMaquina(nuevaFila, nuevaColumna);
+                    // Actualizamos el tiempo después de que la máquina termine su movimiento completo
+                    tiempoRestante = 30;
+                }, 500);
+            }
+        }
+        //Funcion para levantar la ficha si la maquina ya tiene 3 fichas en el modo 6 fichas y esta en modo ia
+        function levantarFichaMaquinaIa(){
+            let posicionBorrada = levantarFichaMaquinaProceso();
+            if (posicionBorrada) {
+                setTimeout(() => {
+                    let filaDestino, colDestino;
+
+                    //primero vemos si puede ganar
+                    let victoria = buscarBloque(opcMaquina);
+                    if (victoria.length > 0) {
+                        filaDestino = victoria[0];
+                        colDestino = victoria[1];
+                    }
+                    //Si no puede ganar, vemos si puede bloquear al jugador
+                    else {
+                        let bloqueo = buscarBloque(opcJugador);
+                        if (bloqueo.length > 0) {
+                            filaDestino = bloqueo[0];
+                            colDestino = bloqueo[1];
+                        }
+                        //prioridades de la IA
+                        else {
+                            //vemos si el centro esta libre
+                            if (tablero[1][1] === "") {
+                                filaDestino = 1;
+                                colDestino = 1;
+                            } 
+                            //Si no el centro, vemos si hay alguna esquina libre
+                            else {
+                                let esquinas = [[0, 0], [0, 2], [2, 0], [2, 2]];
+                                // Mezclamos las esquinas para que no sea siempre la misma
+                                esquinas.sort(() => Math.random() - 0.5);
+                                let esquinaLibre = esquinas.find(e => tablero[e[0]][e[1]] === "");
+                                
+                                if (esquinaLibre) {
+                                    filaDestino = esquinaLibre[0];
+                                    colDestino = esquinaLibre[1];
+                                } else {
+                                    //Si todo lo anterior falla, entonces ponemos en un hueco aleatorio
+                                    let azar = huecoAleatorio();
+                                    filaDestino = azar[0];
+                                    colDestino = azar[1];
+                                }
+                            }
+                        }
+                    }
+                    ejecutaMovimientoMaquina(filaDestino, colDestino);
+                    tiempoRestante = 30;
+                }, 500);
+            }
+        }
+        function levantarFichaMaquinaProceso() {
+            let fichasEncontradas = [];
+            // Recorremos el tablero buscando las fichas de la maquina
+            for (let i = 0; i < 3; i++) {
+                for (let j = 0; j < 3; j++) {
+                    if (tablero[i][j] === opcMaquina) {
+                        fichasEncontradas.push({ f: i, c: j });
+                    }
+                }
+            }
+            // Si encontramos alguna ficha, elegimos una al azar para levantar
+            if (fichasEncontradas.length > 0) {
+                let fichaElegida = null;
+                // Mezclamos el array para elegir una ficha al azar
+                fichasEncontradas.sort(() => Math.random() - 0.5);
+
+                for (let ficha of fichasEncontradas) {
+                    // Aquí la IA elige la primera ficha que encuentra. 
+                    // Podríamos añadir lógica más compleja, pero para la Sub 2 
+                    // con elegir una de sus 3 fichas y liberarla es suficiente.
+                    fichaElegida = ficha;
+                    break; 
+                }
+                // Obtenemos fila y columna de la ficha elegida
+                let fila = fichaElegida.f;
+                let columna = fichaElegida.c;
+
+                // Limpieza lógica y visual
+                tablero[fila][columna] = "";
+                document.getElementById(fila * 3 + columna).innerHTML = "";
+                document.getElementById(fila * 3 + columna).classList.remove('ficha-x', 'ficha-o');
+                // Decrementamos las fichas colocadas de la maquina
+                fichasColocadasMaquina--;
+                totalHuecos++; 
+                // Devolvemos la posición de la ficha levantada
+                return { fila, columna };
+            }
+            // Si no se encontró ninguna ficha, devolvemos null
+            return null;
+        }
+        //Funciones accesibles desde el html
+        window.asignacionFichas = asignacionFichas;
+        window.ponerFichaTablero = ponerFichaTablero;
+        window.ponerFichaMaquina = ponerFichaMaquina;
+        window.comprobarGanador = comprobarGanador;
+        window.activarIa = activarIa;
+        window.ponerFichaMaquinConIa = ponerFichaMaquinConIa;
+        window.buscarBloque = buscarBloque;
+        window.huecoAleatorio = huecoAleatorio;
+        window.ejecutaMovimientoMaquina = ejecutaMovimientoMaquina;
+        window.modo2Jugadores = modo2Jugadores;
+        window.mostrarTurno = mostrarTurno;
+        window.temporizador = temporizador;
+        window.comprobarGanadorTiempo = comprobarGanadorTiempo;  
+        window.mostrarTiempoJugado = mostrarTiempoJugado;
+        window.actualizarEstadisticas = actualizarEstadisticas;
+        window.reiniciarPartida = reiniciarPartida;
+        window.modoJuegoFichas = modoJuegoFichas;
+        window.levantarFichaJugador = levantarFichaJugador;
+        window.levantarFichaMaquina = levantarFichaMaquina;
+        window.levantarFichaMaquinaIa = levantarFichaMaquinaIa;
+        window.levantarFichaMaquinaProceso = levantarFichaMaquinaProceso;
+    </script>
+</body>
+</html>
