@@ -24,6 +24,8 @@ h1 { font-weight: 300; letter-spacing: 4px; text-transform: uppercase; }
 .main-container {
     display: flex;
     flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: center;
     gap: 40px;
     align-items: flex-start;
     margin-top: 20px;
@@ -36,10 +38,8 @@ h1 { font-weight: 300; letter-spacing: 4px; text-transform: uppercase; }
 }
 
 .tablaXO td {
-    width: 100px !important;
-    height: 100px !important;
-    min-width: 100px !important;
-    max-width: 100px !important;
+    width: 100px;
+    height: 100px;
     background: var(--bg);
     border-radius: 20px;
     box-shadow: 9px 9px 16px var(--shadow-dark), 
@@ -195,4 +195,24 @@ button:active {
 #tablaEstadisticas td {
     padding: 10px;
     text-align: center;
+}
+/*Responsive*/
+@media screen and (max-width: 600px) {
+    
+    .tablaXO td {
+        width: 80px !important;
+        height: 80px !important;
+        font-size: 2rem;
+    }
+
+    
+    .panel-lateral {
+        width: 100%;
+    }
+
+    
+    h1 {
+        font-size: 1.2rem;
+        letter-spacing: 2px;
+    }
 }
