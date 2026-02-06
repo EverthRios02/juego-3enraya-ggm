@@ -122,7 +122,7 @@ button:active {
     width: 100%;
     margin-top: 10px;
     padding: 15px;
-    background: #ff7675; /* Un tono rojizo suave para indicar acción de reset */
+    background: #ff7675;
     color: white;
     border-radius: 15px;
     box-shadow: 4px 4px 8px var(--shadow-dark), -4px -4px 8px var(--shadow-light);
@@ -147,18 +147,18 @@ button:active {
     justify-content: center;
     width: 60px;
     height: 60px;
-    border-radius: 50%; /* Los hacemos redondos para que peguen con el círculo */
+    border-radius: 50%; 
     cursor: pointer;
     transition: all 0.3s ease;
-    background: #f0f0f0; /* Color de fondo igual al tablero */
+    background: #f0f0f0; 
     box-shadow: 4px 4px 8px #bebebe, 
-                -4px -4px 8px #ffffff; /* Efecto neumorfismo */
+                -4px -4px 8px #ffffff; 
 }
 
-/* Cuando se selecciona una ficha */
+/* Estilo para la opción de ficha seleccionada */
 .opcion-ficha.seleccionada {
     box-shadow: inset 4px 4px 8px #bebebe, 
-                inset -4px -4px 8px #ffffff; /* Efecto hundido */
+                inset -4px -4px 8px #ffffff; 
     transform: scale(0.95);
 }
 
