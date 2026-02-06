@@ -13,7 +13,7 @@ RUN npm install
 # Copiamos todo el proyecto (incluyendo la carpeta public)
 COPY . .
 
-# Exponemos el puerto para el acceso público [cite: 11]
+# Exponemos el puerto para el acceso público
 EXPOSE 3000
 
 # Comando de ejecución que permite al orquestador monitorizar el proceso 
